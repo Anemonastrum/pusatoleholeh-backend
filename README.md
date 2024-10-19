@@ -13,4 +13,3 @@ Full documentation can be accessed at
 Current Database schema
 
 ![Diagram](https://raw.githubusercontent.com/Anemonastrum/pusatoleholeh-backend/refs/heads/main/schema.png)
-

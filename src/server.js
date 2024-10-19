@@ -24,6 +24,7 @@ app.use(passport.session());
 app.use('/auth', authRoutes);
 app.use('/shop', shopRoutes);
 app.use('/product', productRoutes);
+app.use('/uploads', express.static('uploads'));
 app.use('/profile', userRoutes);
 
 connectMongoDB();
