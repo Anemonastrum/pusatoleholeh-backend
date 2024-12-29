@@ -1,6 +1,5 @@
 import Courier from '../models/courier.js';
 
-// get all active courier
 export const getAllCouriers = async (req, res) => {
     try {
       const couriers = await Courier.find({ isActive: true });
@@ -10,7 +9,6 @@ export const getAllCouriers = async (req, res) => {
     }
 };
 
-// get courier by id
 export const getCourierById = async (req, res) => {
     try {
       const { courierId } = req.params;
@@ -26,7 +24,6 @@ export const getCourierById = async (req, res) => {
     }
 };
 
-// create courier
 export const createCourier = async (req, res) => {
     try {
       const { name, receiptSecret, cost } = req.body;
@@ -44,7 +41,6 @@ export const createCourier = async (req, res) => {
     }
 };
 
-// update courier
 export const updateCourier = async (req, res) => {
     try {
       const { courierId } = req.params;
@@ -67,7 +63,6 @@ export const updateCourier = async (req, res) => {
     }
 };
 
-// delete courier
 export const deleteCourier = async (req, res) => {
     try {
       const { courierId } = req.params;
@@ -85,7 +80,6 @@ export const deleteCourier = async (req, res) => {
     }
 };
 
-// isActive toggle for courier
 export const toggleCourierStatus = async (req, res) => {
     try {
       const { courierId } = req.params;

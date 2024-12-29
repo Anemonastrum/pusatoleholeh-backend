@@ -1,9 +1,7 @@
 import Voucher from '../models/voucher.js';
 
-// Get all vouchers
 export const getAllVouchers = async (req, res) => {
     try {
-      // Jika ingin menampilkan semua vouchers tanpa filter
       const vouchers = await Voucher.find({ isActive: true });
   
       res.status(200).json(vouchers);
@@ -13,7 +11,6 @@ export const getAllVouchers = async (req, res) => {
   };
   
 
-// Get voucher by ID
 export const getVoucherById = async (req, res) => {
   try {
     const { voucherId } = req.params;
@@ -29,7 +26,6 @@ export const getVoucherById = async (req, res) => {
   }
 };
 
-// Create a new voucher
 export const createVoucher = async (req, res) => {
   try {
     const { name, shopId, quantity, discount, minPurchase, expired, isActive } = req.body;
@@ -51,7 +47,6 @@ export const createVoucher = async (req, res) => {
   }
 };
 
-// Update voucher
 export const updateVoucher = async (req, res) => {
   try {
     const { voucherId } = req.params;
@@ -76,7 +71,6 @@ export const updateVoucher = async (req, res) => {
   }
 };
 
-// Delete voucher
 export const deleteVoucher = async (req, res) => {
   try {
     const { voucherId } = req.params;
@@ -92,7 +86,6 @@ export const deleteVoucher = async (req, res) => {
   }
 };
 
-// Toggle voucher active status
 export const toggleVoucherStatus = async (req, res) => {
   try {
     const { voucherId } = req.params;

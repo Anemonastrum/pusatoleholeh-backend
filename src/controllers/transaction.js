@@ -12,7 +12,7 @@ export const createTransaction = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { shopId, paymentId, voucherId, courierId, products, note } = req.body;
+  const { shopId, paymentId, voucherId, courierId, addressId, products, note } = req.body;
   const userId = req.user._id;
 
   try {
@@ -20,21 +20,20 @@ export const createTransaction = async (req, res) => {
     const productRecords = await Product.find({ '_id': { $in: productIds } });
 
     if (productRecords.length !== products.length) {
-      return res.status(404).json({ message: 'One or more products not found' });
+      return res.status(404).json({ message: 'One or more products not found.' });
     }
 
     let totalPrice = 0;
     for (const product of products) {
       const productRecord = productRecords.find(p => p._id.toString() === product.productId.toString());
       if (productRecord.stock < product.quantity) {
-        return res.status(400).json({ message: `Insufficient stock for product: ${productRecord.name}` });
+        return res.status(400).json({ message: `Insufficient stock for product: ${productRecord.name}.` });
       }
       totalPrice += productRecord.price * product.quantity;
     }
 
     let discount = 0;
     if (voucherId) {
-
       const voucher = await Voucher.findById(voucherId);
 
       if (!voucher) {
@@ -46,7 +45,9 @@ export const createTransaction = async (req, res) => {
       }
 
       if (totalPrice < voucher.minPurchase) {
-        return res.status(400).json({ message: `Transaction does not meet the minimum purchase amount of ${voucher.minPurchase}.` });
+        return res.status(400).json({
+          message: `Transaction does not meet the minimum purchase amount of ${voucher.minPurchase}.`,
+        });
       }
 
       discount = (voucher.discount / 100) * totalPrice;
@@ -60,15 +61,15 @@ export const createTransaction = async (req, res) => {
     }
 
     totalPrice -= discount;
-
     totalPrice = Math.max(totalPrice, 0);
 
     const newTransaction = new Transaction({
       userId,
       shopId,
       paymentId,
-      voucherId,
+      voucherId: voucherId || null,
       courierId,
+      addressId,
       products,
       totalPrice,
       note,
@@ -78,7 +79,7 @@ export const createTransaction = async (req, res) => {
 
     const newStatus = new TransactionStatus({
       transactionId: newTransaction._id,
-      status: "Not Paid",
+      status: 'Not Paid',
     });
 
     await newStatus.save();
@@ -89,7 +90,11 @@ export const createTransaction = async (req, res) => {
       await productRecord.save();
     }
 
-    res.status(201).json({ message: 'Transaction created successfully', transaction: newTransaction, status: newStatus });
+    res.status(201).json({
+      message: 'Transaction created successfully.',
+      transaction: newTransaction,
+      status: newStatus,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -119,6 +124,8 @@ export const payTransaction = async (req, res) => {
       if (!transaction) {
         return res.status(404).json({ message: "Transaction not valid." });
       }
+
+      const totalPrice = transaction.totalPrice;
 
       const paymentMethod = await PaymentMethod.findOne({ _id: paymentId });
 
@@ -221,7 +228,7 @@ export const getTransactionSeller = async (req, res) => {
 };
 
 export const completeTransaction = async (req, res) => {
-    const { transactionId, paymentId } = req.params;
+    const { transactionId } = req.params;
 
     try {
       const transactionStatus = await TransactionStatus.findOne({ transactionId });
@@ -234,7 +241,7 @@ export const completeTransaction = async (req, res) => {
         return res.status(400).json({ message: "Transaction is already marked as Completed." });
       }
       
-      if (transactionStatus.status !== 'Process') {
+      if (transactionStatus.status !== 'Processed') {
         return res.status(400).json({ message: "Transaction must be in Process state to mark as Completed." });
       }
   

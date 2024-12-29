@@ -1,5 +1,6 @@
 import Discuss from '../models/discuss.js';
 import Product from '../models/product.js';
+import UserImage from '../models/userImage.js';
 import { validationResult } from 'express-validator';
 
 export const addDiscuss = async (req, res) => {
@@ -91,19 +92,41 @@ export const deleteDiscuss = async (req, res) => {
 
 export const getDiscussionByProduct = async (req, res) => {
     try {
-        const { productId } = req.params;
+      const { productId } = req.params;
 
-        const discussions = await Discuss.find({ productId, deleted: false })
-            .populate('userId', 'username')
-            .populate({
-                path: 'replyId',
-                match: { deleted: false },
-                populate: { path: 'userId', select: 'username' },
-            })
-            .sort({ createdAt: -1 });
+      const discussions = await Discuss.find({ productId, deleted: false })
+        .populate('userId', 'name username')
+        .populate({
+          path: 'replyId',
+          match: { deleted: false },
+          populate: { path: 'userId', select: 'name username' },
+        })
+        .sort({ createdAt: -1 });
 
-        res.status(200).json({ discussions });
+      const discussionsWithImages = await Promise.all(
+        discussions.map(async (discussion) => {
+          const userImage = await UserImage.findOne({ userId: discussion.userId._id });
+          discussion = discussion.toObject();
+          discussion.userImage = userImage ? userImage.url : null;
+  
+          if (discussion.replyId && Array.isArray(discussion.replyId)) {
+            discussion.replyId = await Promise.all(
+              discussion.replyId.map(async (reply) => {
+                const replyUserImage = await UserImage.findOne({ userId: reply.userId._id });
+                reply = reply.toObject();
+                reply.userImage = replyUserImage ? replyUserImage.url : null;
+                return reply;
+              })
+            );
+          }
+  
+          return discussion;
+        })
+      );
+  
+      res.status(200).json({ discussions: discussionsWithImages });
     } catch (err) {
-        res.status(500).json({ message: 'Server error', error: err.message });
-    }  
+      res.status(500).json({ message: 'Server error', error: err.message });
+    }
 };
+  

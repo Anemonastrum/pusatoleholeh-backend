@@ -22,7 +22,7 @@ router.get('/payment', safeRoute, getPayment);
 router.get('/', safeRoute, getUser);
 router.get('/:userId', safeRoute, getUserById);
 
-router.post('/payment', safeRoute, checkUserOrigin, addPaymentMethod);
-router.post('/payment/:paymentId', safeRoute, checkUserOrigin, addCredit);
+router.post('/payment', safeRoute, addPaymentMethod);
+router.post('/payment/:paymentId', safeRoute, addCredit);
 
 export default router;

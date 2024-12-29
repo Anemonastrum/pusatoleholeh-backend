@@ -11,12 +11,12 @@ import { safeRoute, verifyRole } from '../middlewares/middleware.js';
 
 const router = express.Router();
 
-router.post('/', createTransaction);
-router.put('/:transactionId/pay/:paymentId', payTransaction);
-router.put('/:transactionId/process', processTransaction);
-router.get('/seller', getTransactionSeller);
-router.put('/:transactionId/complete', completeTransaction);
-router.get('/', getTransaction);
+router.post('/', safeRoute, createTransaction);
+router.put('/:transactionId/pay/:paymentId', safeRoute, payTransaction);
+router.put('/:transactionId/process', safeRoute, processTransaction);
+router.get('/seller', safeRoute, getTransactionSeller);
+router.put('/:transactionId/complete', safeRoute, completeTransaction);
+router.get('/', safeRoute, getTransaction);
 
 
 export default router;

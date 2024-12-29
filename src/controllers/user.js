@@ -290,14 +290,13 @@ export const addPaymentMethod = async (req, res) => {
   const userId = req.user._id;
   const { name } = req.body;
   
-
   try {
-    const newPaymentMethod = new PaymentMethod({ name, userId })
+    const newPaymentMethod = new PaymentMethod({ name, userId });
     await newPaymentMethod.save();
 
     res.status(200).json({ message: 'Payment method successfully added.'});
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: err.message});
+    res.status(500).json({ message: 'Server error', error: error.message});
   }
 };
 
@@ -332,21 +331,22 @@ export const addCredit = async (req, res) => {
   }
 };
 
-export const getPayment= async (req, res) => {
-  
+export const getPayment = async (req, res) => {
   const userId = req.user._id;
 
   try {
-    const paymentMethod = await PaymentMethod.findOne({ userId });
+    const paymentMethods = await PaymentMethod.find({ userId }).select('-userId');
 
-    if (!paymentMethod) {
-      return res.status(404).json({ message: 'Payment method not found.' });
+    if (!paymentMethods || paymentMethods.length === 0) {
+      return res.status(404).json({ message: 'No payment methods found for this user.' });
     }
+
     res.status(200).json({
-      message: 'Payment method retrieved successfully.',
-      paymentMethod,
+      message: 'Payment methods retrieved successfully.',
+      paymentMethods,
     });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', userId });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

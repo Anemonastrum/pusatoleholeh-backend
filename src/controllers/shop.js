@@ -29,9 +29,11 @@ export const createShop = async (req, res) => {
     } = req.body;
     const ownerId = req.user._id;
 
+    const formattedUsername = username.startsWith('@') ? username : `@${username}`;
+
     const shop = new Shop({
       name,
-      username,
+      username: formattedUsername,
       description,
       ownerId,
       address: {
@@ -70,6 +72,8 @@ export const updateShop = async (req, res) => {
     postalCode,
   } = req.body;
 
+  const formattedUsername = username.startsWith('@') ? username : `@${username}`;
+
   try {
     const shop = await Shop.findOne({ ownerId });
 
@@ -78,7 +82,7 @@ export const updateShop = async (req, res) => {
     }
 
     shop.name = name || shop.name;
-    shop.username = username|| shop.username;
+    shop.username = formattedUsername|| shop.username;
     shop.description = description || shop.description;
     shop.address.province = province || shop.address.province;
     shop.address.city = city || shop.address.city;
