@@ -13,6 +13,7 @@ import heroRoutes from './routes/hero.js';
 import courierRoutes from './routes/courier.js';
 import voucherRoutes from './routes/voucher.js';
 import transactionRoutes from './routes/transaction.js';
+import apiRoutes from './routes/api.js'
 import passportConfig from './configs/passport.js';
 import path from 'path';
 import { connectMongoDB } from './configs/mongodb.js';
@@ -43,6 +44,7 @@ app.use(passport.session());
 app.use(cors());
 cdn.use(cors());
 
+app.use('/', apiRoutes);
 app.use('/auth', authRoutes);
 app.use('/category', categoryRoutes);
 app.use('/product', productRoutes);
