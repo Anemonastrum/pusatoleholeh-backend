@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 
 const transactionSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  shopId: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true },
   addressId: { type: mongoose.Schema.Types.ObjectId, ref: 'Address', required: true },
   paymentId: { type: mongoose.Schema.Types.ObjectId, ref: 'PaymentMethod', required: true },
   voucherId: { type: mongoose.Schema.Types.ObjectId, ref: 'Voucher', default: null },

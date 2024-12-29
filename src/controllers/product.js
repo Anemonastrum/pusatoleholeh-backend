@@ -5,6 +5,8 @@ import Shop from '../models/shop.js';
 import ShopImage from '../models/shopImage.js';
 import ShopBanner from '../models/shopBanner.js';
 import Category from '../models/category.js';
+import Discuss from '../models/discuss.js';
+import Cart from '../models/cart.js';
 import sharp from 'sharp';
 import path from 'path';
 import fs from 'fs';
@@ -98,7 +100,14 @@ export const deleteProduct = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    await Product.deleteOne({ _id: productId });
+    await Promise.all([
+      Discuss.deleteMany({ productId }),
+      Cart.deleteMany({ productId }),
+      ProductImage.deleteMany({ productId }),
+      ProductCover.deleteMany({ productId }),
+      Product.deleteOne({ _id: productId }),
+    ]);
+
     res.status(200).json({ message: 'Product deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
