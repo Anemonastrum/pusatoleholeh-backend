@@ -57,6 +57,17 @@ app.use('/transaction', transactionRoutes)
 
 connectMongoDB();
 
+cdn.use((req, res, next) => {
+    const allowedPath = path.join(__dirname, '../images');
+    const requestedPath = path.join(__dirname, '../', req.path);
+
+    if (!requestedPath.startsWith(allowedPath)) {
+        return res.status(403).sendFile(path.join(__dirname, '../'));
+    }
+
+    next();
+});
+
 cdn.use(express.static(path.join(__dirname, '../')));
 
 cdn.listen(CDN_PORT, '0.0.0.0', () => console.log(`CDN server is serving files at ${CDN_URL}:${CDN_PORT}`));
