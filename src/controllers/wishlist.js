@@ -78,7 +78,6 @@ export const getWishlist = async (req, res) => {
       };
     }));
 
-    // Group products by shopUsername
     const shopProductsX = shopProducts.reduce((acc, product) => {
       const { shopUsername } = product;
 

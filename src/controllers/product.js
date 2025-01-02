@@ -387,23 +387,32 @@ export const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(productId)
       .populate('categoryId', 'name')
-      .populate('shopId', 'name');
+      .populate({
+        path: 'shopId',
+        select: 'name username description address',
+        model: 'Shop'
+      });
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    const coverImage = await ProductCover.findOne({ productId });
-    
-    const additionalImages = await ProductImage.find({ productId });
+    const [coverImage, additionalImages, shopImage, shopBanner] = await Promise.all([
+      ProductCover.findOne({ productId }),
+      ProductImage.find({ productId }),
+      ShopImage.findOne({ shopId: product.shopId._id }),
+      ShopBanner.findOne({ shopId: product.shopId._id })
+    ]);
 
     res.status(200).json({
       product,
-      coverImage: coverImage ? coverImage.url : null, 
+      coverImage: coverImage ? coverImage.url : null,
       productImages: additionalImages.map(img => ({
         id: img._id,
         url: img.url,
       })),
+      shopImage: shopImage ? shopImage.url : null,
+      shopBanner: shopBanner ? shopBanner.url : null
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
