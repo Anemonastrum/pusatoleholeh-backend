@@ -12,6 +12,7 @@ import searchRoutes from './routes/search.js';
 import heroRoutes from './routes/hero.js';
 import courierRoutes from './routes/courier.js';
 import voucherRoutes from './routes/voucher.js';
+import wishlistRoutes from './routes/wishlist.js';
 import transactionRoutes from './routes/transaction.js';
 import apiRoutes from './routes/api.js'
 import passportConfig from './configs/passport.js';
@@ -56,6 +57,7 @@ app.use('/hero', heroRoutes);
 app.use('/courier', courierRoutes);
 app.use('/voucher', voucherRoutes)
 app.use('/transaction', transactionRoutes)
+app.use('/wishlist', wishlistRoutes);
 
 connectMongoDB();
 
