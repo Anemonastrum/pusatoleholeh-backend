@@ -15,6 +15,8 @@ import voucherRoutes from './routes/voucher.js';
 import wishlistRoutes from './routes/wishlist.js';
 import transactionRoutes from './routes/transaction.js';
 import apiRoutes from './routes/api.js'
+import articleRoutes from './routes/article.js'
+import reviewRoutes from './routes/review.js';
 import passportConfig from './configs/passport.js';
 import path from 'path';
 import { connectMongoDB } from './configs/mongodb.js';
@@ -46,6 +48,7 @@ app.use(cors());
 cdn.use(cors());
 
 app.use('/', apiRoutes);
+app.use('/article', articleRoutes);
 app.use('/auth', authRoutes);
 app.use('/category', categoryRoutes);
 app.use('/product', productRoutes);
@@ -58,6 +61,7 @@ app.use('/courier', courierRoutes);
 app.use('/voucher', voucherRoutes)
 app.use('/transaction', transactionRoutes)
 app.use('/wishlist', wishlistRoutes);
+app.use('/reviews', reviewRoutes);
 
 connectMongoDB();
 

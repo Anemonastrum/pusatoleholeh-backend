@@ -70,3 +70,57 @@ export const validateUpdateCategory = [
   body('name').optional().notEmpty().withMessage('Name cannot be empty'),
   body('description').optional().notEmpty().withMessage('Description cannot be empty')
 ];
+
+export const validateArticleCreation = [
+  body("title").notEmpty().withMessage("Title is required"),
+  body("content").notEmpty().withMessage("Content is required"),
+  body("categoryId")
+    .notEmpty()
+    .withMessage("Category ID is required")
+    .isMongoId()
+    .withMessage("Invalid Category ID"),
+  body("productIds")
+    .optional()
+    .isArray()
+    .withMessage("Product IDs must be an array")
+    .custom((productIds) => {
+      return productIds.every((id) =>
+        /^[0-9a-fA-F]{24}$/.test(id)
+      ); // Validate each ID is a valid MongoDB ObjectId
+    })
+    .withMessage("Invalid Product IDs"),
+];
+
+export const validateReviewCreation = [
+  body('productId')
+    .notEmpty()
+    .withMessage('Product ID is required')
+    .isMongoId()
+    .withMessage('Invalid product ID format'),
+  body('transactionId')
+    .notEmpty()
+    .withMessage('Transaction ID is required')
+    .isMongoId()
+    .withMessage('Invalid transaction ID format'),
+  body('rating')
+    .notEmpty()
+    .withMessage('Rating is required')
+    .isInt({ min: 1, max: 5 })
+    .withMessage('Rating must be between 1 and 5'),
+  body('comment')
+    .notEmpty()
+    .withMessage('Comment is required')
+    .isLength({ min: 10, max: 500 })
+    .withMessage('Comment must be between 10 and 500 characters')
+];
+
+export const validateReviewUpdate = [
+  body('rating')
+    .optional()
+    .isInt({ min: 1, max: 5 })
+    .withMessage('Rating must be between 1 and 5'),
+  body('comment')
+    .optional()
+    .isLength({ min: 10, max: 500 })
+    .withMessage('Comment must be between 10 and 500 characters')
+];

@@ -14,6 +14,7 @@ import { validationResult } from 'express-validator';
 import { encodeFileName } from '../configs/crypto.js';
 import { uploadPathCheck } from '../configs/fs.js';
 import { normalizePath, normalizeBaseUrl } from '../configs/normalize.js';
+import Review from '../models/review.js';
 
 export const createProduct = async (req, res) => {
   const errors = validationResult(req);
@@ -397,12 +398,18 @@ export const getProductById = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    const [coverImage, additionalImages, shopImage, shopBanner] = await Promise.all([
+    const [coverImage, additionalImages, shopImage, shopBanner, reviews] = await Promise.all([
       ProductCover.findOne({ productId }),
       ProductImage.find({ productId }),
       ShopImage.findOne({ shopId: product.shopId._id }),
-      ShopBanner.findOne({ shopId: product.shopId._id })
+      ShopBanner.findOne({ shopId: product.shopId._id }),
+      Review.find({ productId })
     ]);
+
+    // Calculate average rating
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    const averageRating = reviews.length > 0 ? (totalRating / reviews.length).toFixed(1) : 0;
+    const totalReviews = reviews.length;
 
     res.status(200).json({
       product,
@@ -412,7 +419,11 @@ export const getProductById = async (req, res) => {
         url: img.url,
       })),
       shopImage: shopImage ? shopImage.url : null,
-      shopBanner: shopBanner ? shopBanner.url : null
+      shopBanner: shopBanner ? shopBanner.url : null,
+      rating: {
+        average: parseFloat(averageRating),
+        total: totalReviews
+      }
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
