@@ -17,6 +17,7 @@ import transactionRoutes from './routes/transaction.js';
 import apiRoutes from './routes/api.js'
 import articleRoutes from './routes/article.js'
 import reviewRoutes from './routes/review.js';
+import adminRoutes from './routes/admin.js';
 import passportConfig from './configs/passport.js';
 import path from 'path';
 import { connectMongoDB } from './configs/mongodb.js';
