@@ -8,9 +8,8 @@ export const getAllVouchers = async (req, res) => {
     } catch (error) {
       res.status(500).json({ message: 'Server error.', error: error.message });
     }
-  };
+};
   
-
 export const getVoucherById = async (req, res) => {
   try {
     const { voucherId } = req.params;

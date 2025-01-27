@@ -22,6 +22,7 @@ export const createTransaction = async (req, res) => {
     for (const shop of shops) {
       const { shopId, courierId, products, note } = shop;
 
+      // Validate products
       const productIds = products.map(product => product.productId);
       const productRecords = await Product.find({ '_id': { $in: productIds } });
 
@@ -29,6 +30,7 @@ export const createTransaction = async (req, res) => {
         return res.status(404).json({ message: `One or more products not found in shop ${shopId}.` });
       }
 
+      // Calculate total price and validate stock
       let totalPrice = 0;
       for (const product of products) {
         const productRecord = productRecords.find(p => p._id.toString() === product.productId.toString());
@@ -40,6 +42,7 @@ export const createTransaction = async (req, res) => {
         totalPrice += productRecord.price * product.quantity;
       }
 
+      // Apply voucher discount if applicable
       let discount = 0;
       if (voucherId) {
         const voucher = await Voucher.findById(voucherId);
@@ -59,13 +62,16 @@ export const createTransaction = async (req, res) => {
       totalPrice -= discount;
       totalPrice = Math.max(totalPrice, 0);
 
+      // Validate courier
       const courier = await Courier.findById(courierId);
       if (!courier) {
         return res.status(404).json({ message: 'Courier not found.' });
       }
 
+      // Add courier cost to total price
       totalPrice += courier.cost;
 
+      // Create transaction for the shop
       const newTransaction = new Transaction({
         userId,
         shopId,
@@ -80,19 +86,23 @@ export const createTransaction = async (req, res) => {
 
       await newTransaction.save();
 
+      // Create transaction status for the shop
       const newStatus = new TransactionStatus({
         transactionId: newTransaction._id,
         status: 'Not Paid',
+        shopId: shopId,
       });
 
       await newStatus.save();
 
+      // Update product stock
       for (const product of products) {
         const productRecord = productRecords.find(p => p._id.toString() === product.productId.toString());
         productRecord.stock -= product.quantity;
         await productRecord.save();
       }
 
+      // Add transaction and status to the response
       transactions.push({ transaction: newTransaction, status: newStatus });
     }
 
@@ -199,36 +209,49 @@ export const processTransaction = async (req, res) => {
 };
 
 export const getTransactionSeller = async (req, res) => {
-    const userId = req.user._id;
-  
-    try {
-      const shop = await Shop.findOne({ ownerId: userId });
-  
-      if (!shop) {
-        return res.status(404).json({ message: 'Shop not found for this user' });
-      }
-  
-      const shopId = shop._id;
-  
-      const transactions = await Transaction.find({ shopId });
-  
-      if (!transactions.length) {
-        return res.status(404).json({ message: 'No transactions found for this shop' });
-      }
-  
-      const transactionStatuses = await TransactionStatus.find({
-        transactionId: { $in: transactions.map(tx => tx._id) },
-      });
-  
-      if (!transactionStatuses.length) {
-        return res.status(404).json({ message: 'No transaction statuses found' });
-      }
-  
-      res.status(200).json({ message: 'Transaction statuses retrieved successfully', transactionStatuses });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Server error', error: err.message });
+  const userId = req.user._id;
+
+  try {
+    const shop = await Shop.findOne({ ownerId: userId });
+
+    if (!shop) {
+      return res.status(404).json({ message: 'Shop not found for this user' });
     }
+
+    const shopId = shop._id;
+
+    const transactions = await Transaction.find({ shopId }).populate('userId', 'name email');
+
+    if (!transactions.length) {
+      return res.status(404).json({ message: 'No transactions found for this shop' });
+    }
+
+    const transactionStatuses = await TransactionStatus.find({
+      transactionId: { $in: transactions.map(tx => tx._id) },
+    });
+
+    if (!transactionStatuses.length) {
+      return res.status(404).json({ message: 'No transaction statuses found' });
+    }
+
+    const response = transactions.map(transaction => {
+      const status = transactionStatuses.find(
+        status => status.transactionId.toString() === transaction._id.toString()
+      );
+      return {
+        transaction: transaction,
+        status: status,
+      };
+    });
+
+    res.status(200).json({
+      message: 'Transactions retrieved successfully',
+      transactions: response,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
 };
 
 export const completeTransaction = async (req, res) => {

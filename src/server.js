@@ -63,6 +63,7 @@ app.use('/voucher', voucherRoutes)
 app.use('/transaction', transactionRoutes)
 app.use('/wishlist', wishlistRoutes);
 app.use('/reviews', reviewRoutes);
+app.use('/admin', adminRoutes);
 
 connectMongoDB();
 
