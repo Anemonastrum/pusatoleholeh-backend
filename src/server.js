@@ -9,14 +9,15 @@ import userRoutes from './routes/user.js';
 import categoryRoutes from './routes/category.js'
 import discussRoutes from './routes/discuss.js';
 import searchRoutes from './routes/search.js';
+import cartRoutes from './routes/cart.js';
 import heroRoutes from './routes/hero.js';
 import courierRoutes from './routes/courier.js';
 import voucherRoutes from './routes/voucher.js';
-import wishlistRoutes from './routes/wishlist.js';
 import transactionRoutes from './routes/transaction.js';
-import apiRoutes from './routes/api.js'
-import articleRoutes from './routes/article.js'
+import apiRoutes from './routes/api.js';
+import articleRoutes from './routes/article.js';
 import reviewRoutes from './routes/review.js';
+import wishlistRoutes from './routes/wishlist.js';
 import adminRoutes from './routes/admin.js';
 import passportConfig from './configs/passport.js';
 import path from 'path';
@@ -49,7 +50,7 @@ app.use(cors());
 cdn.use(cors());
 
 app.use('/', apiRoutes);
-app.use('/article', articleRoutes);
+app.use('/admin', adminRoutes);
 app.use('/auth', authRoutes);
 app.use('/category', categoryRoutes);
 app.use('/product', productRoutes);
@@ -57,14 +58,14 @@ app.use('/shop', shopRoutes);
 app.use('/user', userRoutes);
 app.use('/discuss', discussRoutes);
 app.use('/search', searchRoutes);
+app.use('/cart', cartRoutes);
 app.use('/hero', heroRoutes);
 app.use('/courier', courierRoutes);
 app.use('/voucher', voucherRoutes)
 app.use('/transaction', transactionRoutes)
 app.use('/wishlist', wishlistRoutes);
-app.use('/reviews', reviewRoutes);
-app.use('/admin', adminRoutes);
-
+app.use('/article', articleRoutes);
+app.use('/review', reviewRoutes);
 connectMongoDB();
 
 cdn.use((req, res, next) => {

@@ -1,6 +1,7 @@
 import Review from '../models/review.js';
 import ReviewImage from '../models/reviewImage.js';
 import Transaction from '../models/transaction.js';
+import TransactionStatus from '../models/transactionStatus.js';
 import { validationResult } from 'express-validator';
 import sharp from 'sharp';
 import path from 'path';
@@ -21,13 +22,22 @@ export const addReview = async (req, res) => {
 
     const transaction = await Transaction.findOne({
       _id: transactionId,
-      userId,
-      status: 'completed'
+      userId
     });
 
     if (!transaction) {
       return res.status(404).json({ 
-        message: 'Transaction not found or not completed' 
+        message: 'Transaction not found' 
+      });
+    }
+
+    const transactionStatus = await TransactionStatus.findOne({
+      transactionId: transaction._id
+    });
+
+    if (!transactionStatus || transactionStatus.status !== 'Completed') {
+      return res.status(400).json({ 
+        message: 'Transaction is not completed' 
       });
     }
 

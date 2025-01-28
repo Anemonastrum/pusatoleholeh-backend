@@ -60,7 +60,6 @@ export const updateShop = async (req, res) => {
   }
 
   const ownerId = req.user._id;
-
   const {
     name,
     username,
@@ -72,8 +71,6 @@ export const updateShop = async (req, res) => {
     postalCode,
   } = req.body;
 
-  const formattedUsername = username.startsWith('@') ? username : `@${username}`;
-
   try {
     const shop = await Shop.findOne({ ownerId });
 
@@ -81,18 +78,28 @@ export const updateShop = async (req, res) => {
       return res.status(404).json({ message: 'Shop not found' });
     }
 
-    shop.name = name || shop.name;
-    shop.username = formattedUsername|| shop.username;
-    shop.description = description || shop.description;
-    shop.address.province = province || shop.address.province;
-    shop.address.city = city || shop.address.city;
-    shop.address.district = district || shop.address.district;
-    shop.address.subdistrict = subdistrict || shop.address.subdistrict;
-    shop.address.postalCode = postalCode || shop.address.postalCode;
+    // Only update fields that are provided in the request
+    if (name) shop.name = name;
+    if (username) {
+      const formattedUsername = username.startsWith('@') ? username : `@${username}`;
+      shop.username = formattedUsername;
+    }
+    if (description) shop.description = description;
+    
+    // Update address fields only if they are provided
+    if (province) shop.address.province = province;
+    if (city) shop.address.city = city;
+    if (district) shop.address.district = district;
+    if (subdistrict) shop.address.subdistrict = subdistrict;
+    if (postalCode) shop.address.postalCode = postalCode;
 
     await shop.save();
 
-    res.status(200).json({ message: 'Shop updated successfully', shop });
+    res.status(200).json({ 
+      success: true,
+      message: 'Shop updated successfully', 
+      shop 
+    });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
