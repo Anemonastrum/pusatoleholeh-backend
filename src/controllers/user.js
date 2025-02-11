@@ -211,7 +211,7 @@ export const addAddress = async (req, res) => {
 
     res.status(200).json({ message: 'Address successfully added.'});
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: err.message});
+    res.status(500).json({ message: 'Server error', error: error.message});
   }
 };
 
@@ -242,7 +242,7 @@ export const updateAddress = async (req, res) => {
 
     res.status(200).json({ message: 'Address successfully updated.'});
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: err.message});
+    res.status(500).json({ message: 'Server error', error: error.message});
   }
 };
 
@@ -301,7 +301,6 @@ export const addPaymentMethod = async (req, res) => {
 };
 
 export const addCredit = async (req, res) => {
-
   const userId = req.user._id;
   const { paymentId } = req.params;
   const { amount } = req.query;
@@ -327,7 +326,7 @@ export const addCredit = async (req, res) => {
       updatedCredit: paymentMethod.credit,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: err.message});
+    res.status(500).json({ message: 'Server error', error: error.message});
   }
 };
 

@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post('/add', safeRoute, verifyRole('admin'), upload.single('banner'), uploadHeroBanner);
 router.put('/update/:heroBannerId', safeRoute, verifyRole('admin'), upload.single('banner'), updateHeroBanner);
-router.delete('/delete/:heroBannerId', safeRoute, verifyRole('admin'), upload.single('banner'), deleteHeroBanner);
+router.delete('/delete/:heroBannerId', safeRoute, verifyRole('admin'), deleteHeroBanner);
 
 router.get('/', getBanner);
 
